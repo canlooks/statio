@@ -1,33 +1,14 @@
-import {isClass, shallowEqual} from './util'
+import {IsEqual, Listener, StoreClass, StoreFactory, SubscribeOptions} from '../index'
+import {Api} from './api'
+import {shallowEqual} from './util'
 import {useRef, useSyncExternalStore} from 'react'
-import {Compute, IsEqual, Listener, SetStateMethod, StoreClass, StoreFactory, SubscribeOptions} from '../index'
-import {Computable} from './compute'
-import {allocateProperties} from './allocate'
 
 export function createStore<S extends object = any>(factory: StoreFactory<S> | StoreClass<S>) {
-    let state: S
-
-    const setState: SetStateMethod<S> = (setStateAction, overwrite) => {
-        const newState = typeof setStateAction === 'function' ? setStateAction(state) : setStateAction
-        if (overwrite) {
-            state = newState as S
-        } else {
-            Object.assign(state, newState)
-        }
+    const api = new Api(factory, state => {
         for (const fire of listeners) {
             fire(state)
         }
-    }
-
-    const getState = () => state
-
-    const compute: Compute = (factory, deps) => Computable.get(state, factory, deps)
-
-    state = isClass(factory)
-        ? new factory(setState, compute)
-        : (factory as StoreFactory<S>)(setState, getState, compute)
-
-    allocateProperties(state)
+    })
 
     function useStore(): S
     function useStore<K extends keyof S>(...keys: K[]): Pick<S, K>
@@ -54,30 +35,32 @@ export function createStore<S extends object = any>(factory: StoreFactory<S> | S
             }
         }
 
-        const symbolHelper = useRef<symbol>(void 0)
+        const symbolHelper = useRef(Symbol())
 
-        const cachedSnapshot = useRef(void 0)
+        const cachedSnapshot = useRef<any>(void 0)
         if (selector) {
-            cachedSnapshot.current ||= selector(state)
+            cachedSnapshot.current ||= selector(api.state)
         }
 
-        const getSnapshot = () => selector ? cachedSnapshot.current : symbolHelper.current
-
-        useSyncExternalStore(onStoreChange => {
-            const listener = (snapshot: any) => {
-                if (selector) {
-                    cachedSnapshot.current = snapshot
-                } else {
-                    symbolHelper.current = Symbol()
+        const result = useSyncExternalStore(
+            onStoreChange => {
+                const listener = (snapshot: any) => {
+                    if (selector) {
+                        cachedSnapshot.current = snapshot
+                    } else {
+                        symbolHelper.current = Symbol()
+                    }
+                    onStoreChange()
                 }
-                onStoreChange()
-            }
-            return selector
-                ? subscribe(selector, listener, {isEqual})
-                : subscribe(listener)
-        }, getSnapshot, getSnapshot)
+                return selector
+                    ? subscribe(selector, listener, {isEqual, _initSnapshot: cachedSnapshot.current})
+                    : subscribe(listener)
+            },
+            () => selector ? cachedSnapshot.current : symbolHelper.current,
+            () => api.serverState
+        )
 
-        return selector ? cachedSnapshot.current : state
+        return typeof result === 'symbol' ? api.state : result
     }
 
     const listeners = new Set<Listener<S>>()
@@ -91,18 +74,14 @@ export function createStore<S extends object = any>(factory: StoreFactory<S> | S
         const selector = bIsFunction ? a : void 0
         const options = bIsFunction ? c : b
 
-        let prevSnapshot: any
-
-        if (selector && !options?.immediate) {
-            prevSnapshot = selector(state)
-        }
+        let prevSnapshot = options?._initSnapshot
 
         const callback = () => {
             if (!selector) {
-                listener(state)
+                listener(api.state)
                 return
             }
-            const snapShot = selector(state)
+            const snapShot = selector(api.state)
             if (options?.isEqual) {
                 if (options.isEqual(snapShot, prevSnapshot)) {
                     return
@@ -135,8 +114,8 @@ export function createStore<S extends object = any>(factory: StoreFactory<S> | S
         }
     }
 
-    useStore.getState = getState
-    useStore.setState = setState
+    useStore.getState = () => api.state
+    useStore.setState = api.setState
     useStore.subscribe = subscribe
     useStore.unsubscribe = unsubscribe
 

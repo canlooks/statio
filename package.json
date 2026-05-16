@@ -37,6 +37,7 @@
     "build:alias": "tsc-alias --outDir dist/esm",
     "rebuild": "npm run clean && npm run build && npm run build:alias",
     "test:browser": "vite -c test/vite.config.mts",
+    "test:ssr": "next dev test",
     "test:unit": "npx ts-node test/unit.ts"
   },
   "dependencies": {
@@ -46,10 +47,12 @@
     "@types/node": "^25.8.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
+    "next": "^16.2.6",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "tsc-alias": "^1.8.17",
     "typescript": "^6.0.3",
-    "vite": "^8.0.13"
+    "vite": "^8.0.13",
+    "zustand": "^5.0.13"
   }
 }

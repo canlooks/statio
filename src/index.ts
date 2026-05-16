@@ -1,3 +1,5 @@
+export * from './api'
 export * from './compute'
-export * from './core'
+export * from './createStore'
+export * from './storage'
 export * from './util'

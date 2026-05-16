@@ -2,26 +2,29 @@ import {shallowEqual} from './util'
 import {Compute} from '../index'
 import {prefix} from './log'
 
-export function createCompute(getContext?: () => object): Compute {
+export function createCompute(): Compute {
     let prevDeps: any[] = []
     let prevResult: any
     let hasRun = false
 
-    return (factory, deps) => {
+    return function (this: any, factory, deps) {
         if (hasRun && shallowEqual(prevDeps, deps)) {
             return prevResult
         }
         hasRun = true
         prevDeps = [...deps]
-        return prevResult = factory.call(getContext?.())
+        return prevResult = factory.call(this)
     }
 }
 
-export class Computable {
-    private static property_compute = new Map<string, Compute>()
-    private static stack: string[] = []
+export class Computable<S> {
+    constructor(private state: S) {
+    }
 
-    static createGetter<T>(key: string, get: () => T): () => T {
+    private property_compute = new Map<string, Compute>()
+    private stack: string[] = []
+
+    createGetter<T>(key: string, get: () => T): () => T {
         return () => {
             try {
                 this.stack.push(key)
@@ -32,16 +35,16 @@ export class Computable {
         }
     }
 
-    static get<T>(context: object, factory: () => T, deps: any[]): T {
+    get<T>(factory: () => T, deps: any[]): T {
         const key = this.stack[this.stack.length - 1]
         if (!key) {
             throw Error(`${prefix}"compute" method can only be used in getter properties.`)
         }
         let compute = this.property_compute.get(key)
         if (!compute) {
-            compute = createCompute(() => context)
+            compute = createCompute()
             this.property_compute.set(key, compute)
         }
-        return compute(factory, deps)
+        return compute.call(this.state, factory, deps) as T
     }
 }

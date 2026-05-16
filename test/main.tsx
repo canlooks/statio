@@ -1,36 +1,37 @@
 import {createRoot} from 'react-dom/client'
-import {StrictMode} from 'react'
-import {createStore} from '../src'
-import {Compute, SetStateMethod} from '../index'
+import {StrictMode, useEffect} from 'react'
+import {createStore, storage} from '../src'
+import {SetStateMethod, StoreApi} from '../index'
 
-const useFnStore = createStore<{
-    count: number
-    double: number
-    increase: () => void
-}>((set, get, compute) => ({
-    count: 123,
-    get double() {
-        return compute(() => {
-            console.log('compute', this)
-            return get().count * 2
-        }, [get().count])
-    },
-    increase() {
-        set({count: this.count + 1})
-    },
-    decrease: () => {
-
-    }
-}))
+// const useFnStore = createStore<{
+//     count: number
+//     double: number
+//     increase: () => void
+//     decrease: () => void
+// }>((set, {compute}) => ({
+//     count: 123,
+//     get double() {
+//             console.log('compute', this)
+//         return compute(() => {
+//             return this.count * 2
+//         }, [this.count])
+//     },
+//     increase() {
+//         set({count: this.count + 1})
+//     },
+//     decrease: () => {
+//
+//     }
+// }))
 
 class ClsStore {
-    constructor(private set: SetStateMethod<ClsStore>, private compute: Compute) {
+    constructor(private set: SetStateMethod<ClsStore>, private api: StoreApi<ClsStore>) {
     }
 
     count = 123
 
     get double() {
-        return this.compute(() => {
+        return this.api.compute(() => {
             console.log('compute')
             return this.count * 2
         }, [this.count])
@@ -41,10 +42,12 @@ class ClsStore {
     }
 }
 
-const useClsStore = createStore(ClsStore)
+const useClsStore = createStore(
+    storage(ClsStore, {name: 'test'})
+)
 
 function App() {
-    const fnStore = useFnStore(({
+    const store = useClsStore(({
         count,
         double,
         increase
@@ -54,19 +57,29 @@ function App() {
         increase
     }))
 
+    // const store = useClsStore('count', 'double', 'increase')
+
+    // useEffect(() => {
+    //     (async () => {
+    //         for (let i = 0; i < 10; i++) {
+    //             console.log(fnStore.double)
+    //             await new Promise(resolve => setTimeout(resolve, 1000))
+    //         }
+    //     })()
+    // }, [])
+
     return (
         <>
-            <button onClick={fnStore.increase}>{fnStore.count}</button>
-            <h1>{fnStore.double}</h1>
-            <h1>{fnStore.double}</h1>
-            <h1>{fnStore.double}</h1>
-            <h1>{fnStore.double}</h1>
+            <button onClick={store.increase}>{store.count}</button>
+            <h1>{store.double}</h1>
+            <h1>{store.double}</h1>
+            <h1>{store.double}</h1>
         </>
     )
 }
 
 createRoot(document.getElementById('app')!).render(
-    <StrictMode>
+    <>
         <App/>
-    </StrictMode>
+    </>
 )
