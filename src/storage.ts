@@ -2,7 +2,7 @@ import {SetStateMethod, StorageOptions, StoreApi, StoreClass, StoreFactory} from
 import {createBatchAction, getAllPropertyDescriptors, isClass} from './util'
 import {Api} from './api'
 
-export function storage<S extends object>(factory: StoreFactory<S> | StoreClass<S>, options: StorageOptions<S>) {
+export function storage<S extends object>(factory: StoreFactory<S> | StoreClass<S>, options: StorageOptions<S>): StoreFactory<S> {
     return (set: SetStateMethod<S>, api: StoreApi<S>) => {
         const {
             name,

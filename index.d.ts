@@ -1,3 +1,5 @@
+import {Computable} from './src'
+
 declare namespace Statio {
     type StoreClass<S = any> = new (set: SetStateMethod<S>, api: StoreApi<S>) => S
 
@@ -7,12 +9,13 @@ declare namespace Statio {
 
     type SetStateAction<S> = Partial<S> | ((state: S) => Partial<S>)
 
-    type StoreApi<S> = {
+    class StoreApi<S> {
         state: S
         serverState?: S
         setState: SetStateMethod<S>
         getState(): S
         compute: Compute
+        computable: Computable<S>
     }
 
     type Compute = <T>(factory: () => T, deps: any[]) => T
@@ -30,6 +33,13 @@ declare namespace Statio {
 
     /**
      * ---------------------------------------------------------------------------------------
+     * createStore
+     */
+
+    function createStore<S extends object = any>(factory: StoreFactory<S> | StoreClass<S>): S
+
+    /**
+     * ---------------------------------------------------------------------------------------
      * Storage
      */
 
@@ -44,14 +54,26 @@ declare namespace Statio {
         }
     }
 
+    function storage<S extends object>(factory: StoreFactory<S> | StoreClass<S>, options: StorageOptions<S>): StoreFactory<S>
+
     /**
      * ---------------------------------------------------------------------------------------
      * Util
      */
 
+    function getAllPropertyDescriptors(o: any): { [p: PropertyKey]: PropertyDescriptor }
+
+    function isClass(fn: Function | StoreClass): fn is StoreClass
+
+    function shallowEqual(a: any, b: any): boolean
+
     interface AbortablePromise<T> extends Promise<T> {
         abort(): void
     }
+
+    function nextTick<T>(callback?: (...args: T[]) => void, ...args: T[]): AbortablePromise<T>
+
+    function createBatchAction<T extends (this: any, ...a: any[]) => any>(action: T, effect: () => any): T
 }
 
 export = Statio
