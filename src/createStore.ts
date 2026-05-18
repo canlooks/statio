@@ -42,6 +42,8 @@ export function createStore<S extends object = any>(factory: StoreFactory<S> | S
             cachedSnapshot.current ||= selector(api.state)
         }
 
+        const getSnapshot = () => selector ? cachedSnapshot.current : symbolHelper.current
+
         const result = useSyncExternalStore(
             onStoreChange => {
                 const listener = (snapshot: any) => {
@@ -56,8 +58,8 @@ export function createStore<S extends object = any>(factory: StoreFactory<S> | S
                     ? subscribe(selector, listener, {isEqual, _initSnapshot: cachedSnapshot.current})
                     : subscribe(listener)
             },
-            () => selector ? cachedSnapshot.current : symbolHelper.current,
-            () => api.serverState
+            getSnapshot,
+            () => api.serverState || getSnapshot()
         )
 
         return typeof result === 'symbol' ? api.state : result

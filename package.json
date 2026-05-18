@@ -1,6 +1,6 @@
 {
   "name": "@canlooks/statio",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "author": "C.CanLiang <canlooks@gmail.com>",
   "description": "Simple react state manager",
   "keywords": [
@@ -23,11 +23,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/canlooks/reactive"
+    "url": "https://github.com/canlooks/statio"
   },
-  "homepage": "https://github.com/canlooks/reactive",
+  "homepage": "https://github.com/canlooks/statio",
   "bugs": {
-    "url": "https://github.com/canlooks/reactive/issues",
+    "url": "https://github.com/canlooks/statio/issues",
     "email": "canlooks@gmail.com"
   },
   "license": "MIT",

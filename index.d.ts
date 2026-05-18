@@ -36,7 +36,11 @@ declare namespace Statio {
      * createStore
      */
 
-    function createStore<S extends object = any>(factory: StoreFactory<S> | StoreClass<S>): S
+    function createStore<S extends object = any>(factory: StoreFactory<S> | StoreClass<S>): {
+        (): S
+        <K extends keyof S>(...keys: K[]): Pick<S, K>
+        <T = S>(selector: (state: S) => T, isEqual?: IsEqual<T>): T
+    }
 
     /**
      * ---------------------------------------------------------------------------------------

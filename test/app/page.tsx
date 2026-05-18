@@ -40,14 +40,14 @@ export default function Page() {
         double,
         increase
     }))
-
+    console.log(43, store)
     return (
         <>
             <h1>Test SSR</h1>
             <button onClick={store.increase}>{store.count}</button>
-            {/*<h2>{store.double}</h2>*/}
-            {/*<h2>{store.double}</h2>*/}
-            {/*<h2>{store.double}</h2>*/}
+            <h2>{store.double}</h2>
+            <h2>{store.double}</h2>
+            <h2>{store.double}</h2>
         </>
     )
 }

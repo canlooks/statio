@@ -490,22 +490,6 @@ Selectors are also fully typed — the return type is inferred from the selector
 
 ---
 
-## Comparison
-
-| Feature | Statio | Zustand | Jotai | Redux Toolkit |
-|---------|--------|---------|-------|---------------|
-| **Class-based stores** | ✅ | ❌ | ❌ | ❌ |
-| **Computed properties** | ✅ (via `compute`) | ❌ (needs middleware) | ✅ (atoms) | ✅ (selectors) |
-| **Built-in persistence** | ✅ (`storage`) | ✅ (`persist` middleware) | ✅ (`atomWithStorage`) | ❌ (needs middleware) |
-| **Selective re-rendering** | ✅ (selector/shallowEqual) | ✅ (selector/shallow) | ✅ (atomic) | ✅ (selectors) |
-| **Bundle size** | Tiny | Tiny | Small | Medium |
-| **SSR support** | ✅ | ✅ | ✅ | ✅ |
-| **Middleware system** | Wrapper pattern | Middleware API | N/A | Middleware API |
-
-Statio is ideal when you want Zustand-like simplicity but prefer class-based organization, or need built-in computed properties without additional middleware.
-
----
-
 ## License
 
 MIT
