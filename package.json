@@ -38,7 +38,7 @@
     "rebuild": "npm run clean && npm run build && npm run build:alias",
     "test:browser": "vite -c test/vite.config.mts",
     "test:ssr": "next dev test",
-    "test:standalone": "npx ts-node test/standalone.ts",
+    "test:node": "npx ts-node test/node.ts",
     "test": "vitest run -c test/vitest.config.ts",
     "test:watch": "vitest -c test/vitest.config.ts",
     "test:coverage": "vitest run -c test/vitest.config.ts --coverage"
@@ -50,6 +50,7 @@
     "@types/node": "^25.8.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
+    "@vitest/coverage-v8": "^4.1.6",
     "next": "^16.2.6",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",

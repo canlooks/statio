@@ -161,7 +161,7 @@ describe('useStore hook return type', () => {
 
         // Simulate using a getter selector
         const getter = (state: any) => state.a > 0
-        useStore.subscribe(getter, vi.fn())
+        useStore.subscribe(getter, vi.fn<any>())
         const result = getter(useStore.getState())
         expect(result).toBe(true)
     })
