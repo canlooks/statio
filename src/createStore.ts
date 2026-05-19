@@ -5,7 +5,7 @@ import {useRef, useSyncExternalStore} from 'react'
 
 export function createStore<S extends object = any>(factory: StoreFactory<S> | StoreClass<S>) {
     const api = new Api(factory, state => {
-        for (const fire of listeners) {
+        for (const fire of callbacks) {
             fire(state)
         }
     })
@@ -65,8 +65,8 @@ export function createStore<S extends object = any>(factory: StoreFactory<S> | S
         return typeof result === 'symbol' ? api.state : result
     }
 
-    const listeners = new Set<Listener<S>>()
-    const originListener_callback = new WeakMap<Function, Function>()
+    const callbacks = new Set<Function>()
+    const originListener_callbackSet = new WeakMap<Function, Set<Function>>()
 
     function subscribe(listener: Listener<S>, options?: Omit<SubscribeOptions, 'isEqual'>): () => void
     function subscribe<T = S>(selector: (state: S) => T, listener: (snapshot: T, prevSnapshot?: T) => void, options?: SubscribeOptions<T>): () => void
@@ -100,19 +100,31 @@ export function createStore<S extends object = any>(factory: StoreFactory<S> | S
         }
         options?.immediate && callback()
 
-        listeners.add(callback)
-        originListener_callback.set(listener, callback)
+        callbacks.add(callback)
+        const callbackSet = originListener_callbackSet.get(listener) || new Set()
+        callbackSet.add(callback)
+        originListener_callbackSet.set(listener, callbackSet)
 
         return () => {
-            unsubscribe(listener)
+            callbacks.delete(callback)
+            const callbackSet = originListener_callbackSet.get(listener)
+            if (callbackSet) {
+                if (callbackSet.size === 1) {
+                    originListener_callbackSet.delete(listener)
+                } else {
+                    callbackSet.delete(callback)
+                }
+            }
         }
     }
 
     function unsubscribe(listener: Function) {
-        const callback = originListener_callback.get(listener)
-        if (callback) {
-            listeners.delete(callback as any)
-            originListener_callback.delete(listener)
+        const callbackSet = originListener_callbackSet.get(listener)
+        if (callbackSet) {
+            for (const callback of callbackSet) {
+                callbacks.delete(callback)
+            }
+            originListener_callbackSet.delete(listener)
         }
     }
 

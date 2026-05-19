@@ -36,11 +36,14 @@ export function shallowEqual(a: any, b: any) {
     if (a === b) {
         return true
     }
-    if (typeof a !== 'object') {
+    if (typeof a !== 'object' || typeof b !== 'object') {
         return false
     }
     if (a === null) {
         return b === null
+    }
+    if (b === null) {
+        return false
     }
     if (Array.isArray(a) !== Array.isArray(b)) {
         return false
@@ -69,7 +72,7 @@ export function nextTick<T>(callback?: (...args: T[]) => void, ...args: T[]): Ab
     let aborted = false
     const promise = new Promise(resolve => {
         if (typeof queueMicrotask === 'function') {
-            queueMicrotask(fn)
+            queueMicrotask(() => fn(...args))
             return
         }
         if (typeof process === 'object' && process.nextTick) {

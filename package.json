@@ -1,6 +1,6 @@
 {
   "name": "@canlooks/statio",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "author": "C.CanLiang <canlooks@gmail.com>",
   "description": "Simple react state manager",
   "keywords": [
@@ -38,7 +38,7 @@
     "rebuild": "npm run clean && npm run build && npm run build:alias",
     "test:browser": "vite -c test/vite.config.mts",
     "test:ssr": "next dev test",
-    "test:unit": "npx ts-node test/unit.ts",
+    "test:standalone": "npx ts-node test/standalone.ts",
     "test": "vitest run -c test/vitest.config.ts",
     "test:watch": "vitest -c test/vitest.config.ts",
     "test:coverage": "vitest run -c test/vitest.config.ts --coverage"

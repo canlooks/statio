@@ -197,7 +197,7 @@ describe('shallowEqual', () => {
             expect(shallowEqual(null, {})).toBe(false)
             // shallowEqual(obj, null) throws: Object.keys(null)
             // This is a known edge case in the current implementation
-            expect(() => shallowEqual({}, null as any)).toThrow()
+            expect(shallowEqual({}, null)).toBe(false)
         })
     })
 
@@ -285,23 +285,16 @@ describe('nextTick', () => {
 
     it('passes arguments to callback', async () => {
         const fn = vi.fn()
-        // Note: queueMicrotask path does NOT pass args to fn;
-        // the setTimeout path does. This test verifies current behavior.
-        nextTick(fn as any, 'arg1', 42)
+        nextTick(fn as any, 'arg1', 42 as any)
         await new Promise<void>(resolve => setTimeout(resolve, 50))
-        // In Node, queueMicrotask is used, so callback receives no args
-        expect(fn).toHaveBeenCalledTimes(1)
+        expect(fn).toHaveBeenCalledWith('arg1', 42)
     })
 
     it('resolves with the first argument', async () => {
-        // nextTick resolves with a[0] from the internal fn callback.
-        // With queueMicrotask, fn receives no args → resolves with undefined.
         const p = nextTick((x: any) => x, 'result')
-        // Flush microtasks
         await new Promise<void>(resolve => setTimeout(resolve, 50))
         const value = await p
-        // queueMicrotask path: fn called with no args, resolves with undefined
-        expect(value).toBeUndefined()
+        expect(value).toBe('result')
     })
 
     it('abort() prevents callback execution', async () => {
