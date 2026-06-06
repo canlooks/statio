@@ -40,6 +40,14 @@ declare namespace Statio {
         (): S
         <K extends keyof S>(...keys: K[]): Pick<S, K>
         <T = S>(selector: (state: S) => T, isEqual?: IsEqual<T>): T
+
+        getState(): S
+        setState: SetStateMethod<S>
+        subscribe: {
+            (listener: Listener<S>, options?: Omit<SubscribeOptions, 'isEqual'>): () => void
+            <T = S>(selector: (state: S) => T, listener: (snapshot: T, prevSnapshot?: T) => void, options?: SubscribeOptions<T>): () => void
+        }
+        unsubscribe(listener: Function): void
     }
 
     /**

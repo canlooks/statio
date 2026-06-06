@@ -1,6 +1,6 @@
 {
   "name": "@canlooks/statio",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "author": "C.CanLiang <canlooks@gmail.com>",
   "description": "Simple react state manager",
   "keywords": [
