@@ -28,7 +28,7 @@ export function storage<S extends object>(factory: StoreFactory<S> | StoreClass<
         const batchSet = createBatchAction(set, () => {
             if (storageFactory) {
                 const state = api.getState()
-                const value = selector ? selector(state) : state
+                const value = selector(state)
                 storageFactory.setItem(name, JSON.stringify(value))
             }
         })
